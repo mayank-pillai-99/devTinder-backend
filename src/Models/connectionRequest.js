@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-//Connection request schema
 const connectionRequestSchema = new mongoose.Schema(
   {
     fromUserId: {
@@ -17,25 +16,23 @@ const connectionRequestSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: {
-        values: ["ignored", "accepted", "rejected", "intrested"],
-        message: `{values} is incorrect status type`,
+        values: ["ignored", "interested", "accepted", "rejected"],
+        message: `{VALUE} is incorrect status type`,
       },
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-//compound index
+// ConnectionRequest.find({fromUserId: 273478465864786587, toUserId: 273478465864786587})
+
 connectionRequestSchema.index({ fromUserId: 1, toUserId: 1 });
 
 connectionRequestSchema.pre("save", function (next) {
   const connectionRequest = this;
-
-  //chekc is fromUserId is same as toUserId
+  // Check if the fromUserId is same as toUserId
   if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
-    throw new Error("You Cannot send connection request to yourself");
+    throw new Error("Cannot send connection request to yourself!");
   }
   next();
 });
@@ -44,6 +41,5 @@ const ConnectionRequestModel = new mongoose.model(
   "ConnectionRequest",
   connectionRequestSchema
 );
-module.exports = {
-  ConnectionRequestModel,
-};
+
+module.exports = ConnectionRequestModel;
